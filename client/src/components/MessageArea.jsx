@@ -83,7 +83,7 @@ function MessageArea() {
     <div
       className={`w-full h-[100vh] lg:px-[10px] lg:w-[70%] relative ${
         selectedUser ? "flex" : "hidden"
-      } lg:block bg-slate-300 lg:border-l-2 lg:border-gray-300`}
+      } lg:block bg-slate-300 lg:border-l-2 lg:border-gray-300 overflow-hidden`}
     >
       {selectedUser ? (
         <div className="flex flex-col w-full h-100vh">
