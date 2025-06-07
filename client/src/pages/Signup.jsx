@@ -1,13 +1,12 @@
-import React, { useState } from "react";
+import React, { useState} from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { serverURL } from "../main";
 import axios from "axios";
-import useSetCurrentUser from "../customHooks/getCurrentUser";
-import useSetOtherUsers from "../customHooks/getOtherUsers";
-
+import { setOtherUsers, setSelectedUser, setUserData } from "../redux/userSlice";
 function Signup() {
-  const refreshUser = useSetCurrentUser();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
@@ -27,7 +26,7 @@ function Signup() {
         { username, email, password },
         { withCredentials: true }
       );
-      refreshUser();
+      dispatch(setUserData(result?.data?.user))
       setError("");
       setEmail("");
       setPassword("");

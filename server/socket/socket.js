@@ -6,7 +6,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "https://wechat-22ij.onrender.com",
   },
 });
 export const userSocketMap = {};
