@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { serverURL } from "../main";
 import axios from "axios";
-
+import { setOtherUsers, setSelectedUser, setUserData } from "../redux/userSlice";
 function Signup() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
