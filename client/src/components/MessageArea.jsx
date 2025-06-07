@@ -12,9 +12,10 @@ import ReceiverMessage from "./ReceiverMessage";
 import axios from "axios";
 import { serverURL } from "../main";
 import { setMessages } from "../redux/messageSlice";
+import MessageAreaShimmer from "./shimmer/shimmerMessageArea";
 
 function MessageArea() {
-  const { selectedUser, userData, socket } = useSelector((state) => state.user);
+  const { selectedUser, userData, socket , loading} = useSelector((state) => state.user);
   const { messages = [] } = useSelector((state) => state.message); // default to []
   const dispatch = useDispatch();
 
@@ -43,8 +44,9 @@ function MessageArea() {
       sender: userData._id,
       message: input,
       image: frontendImage,
-    };
-
+      createdAt : Date.now()
+    
+    }
     // Show message instantly
     dispatch(setMessages([...messages, tempMessage]));
     setFrontendImage(null);
@@ -78,7 +80,7 @@ function MessageArea() {
     socket.on("newMessage", handleNewMessage);
     return () => socket.off("newMessage", handleNewMessage);
   }, [socket, messages]);
-   
+  if(loading) return <MessageAreaShimmer/>
   return (
     <div
       className={`w-full h-[100vh] lg:px-[10px] lg:w-[70%] relative ${
@@ -88,8 +90,10 @@ function MessageArea() {
       {selectedUser ? (
         <div className="flex flex-col w-full h-100vh">
           {/* Header */}
-          <div className="w-full h-[90px] lg:h-[100px] bg-purple-600 rounded-b-[30px] flex shadow-md
-          px-[10px] md:px-[20px] items-center gap-[14px] lg:gap-[20px] sticky top-0 z-50">
+          <div
+            className="w-full h-[90px] lg:h-[100px] bg-purple-600 rounded-b-[30px] flex shadow-md
+          px-[10px] md:px-[20px] items-center gap-[14px] lg:gap-[20px] sticky top-0 z-50"
+          >
             <div
               className="cursor-pointer hover:shadow-md hover:scale-105 transition duration-200"
               onClick={() => dispatch(setSelectedUser(null))}
@@ -129,12 +133,22 @@ function MessageArea() {
                     key={mess._id}
                     image={mess.image}
                     message={mess.message}
+                    time={new Date(mess.createdAt).toLocaleTimeString("en-IN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })}
                   />
                 ) : (
                   <ReceiverMessage
                     key={mess._id}
                     image={mess.image}
                     message={mess.message}
+                    time={new Date(mess.createdAt).toLocaleTimeString("en-IN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })} 
                   />
                 )
               )}

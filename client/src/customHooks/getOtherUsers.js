@@ -12,7 +12,7 @@ function useSetOtherUsers() {
         const res = await axios.get(`${serverURL}/api/user/others`, {
           withCredentials: true,
         });
-        dispatch(setOtherUsers(res.data));
+        dispatch(setOtherUsers(res?.data));
       } catch (error) {
         console.log("User not logged in or error fetching user");
         dispatch(setOtherUsers(null));

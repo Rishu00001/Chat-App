@@ -1,8 +1,14 @@
 import React from "react";
 
+import { useSelector } from "react-redux";
 function ShimmerSidebar() {
+  const { selectedUser} = useSelector((state) => state.user);
   return (
-    <div className="w-full h-full lg:w-[30%] bg-slate-200">
+    <div
+      className={`w-full h-full lg:w-[30%] bg-slate-200 lg:block overflow-hidden ${
+        !selectedUser ? "block" : "hidden"
+      }`}
+    >
       {/* Header shimmer */}
       <div className="w-full h-[300px] bg-purple-500 rounded-b-[25%] flex flex-col justify-center px-5 gap-4">
         <div className="h-6 bg-white/60 w-[120px] rounded-md animate-pulse"></div>

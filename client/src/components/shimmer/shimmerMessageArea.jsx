@@ -1,8 +1,13 @@
 import React from "react";
-
+import { useSelector } from "react-redux";
 function MessageAreaShimmer() {
+  const { selectedUser} = useSelector((state) => state.user);
   return (
-    <div className="w-full h-full lg:w-[70%] bg-slate-200 lg:border-l-2 border-gray-300">
+    <div
+      className={`w-full h-[100vh] lg:px-[10px] lg:w-[70%] relative ${
+        selectedUser ? "flex" : "hidden"
+      } lg:block bg-slate-300 lg:border-l-2 lg:border-gray-300 overflow-hidden`}
+    >
       <div className="w-full h-[100px] bg-purple-600 rounded-b-[30px] flex items-center gap-4 px-[20px]">
         <div className="w-8 h-8 rounded-full bg-white/60 animate-pulse"></div>
         <div className="w-[50px] h-[50px] rounded-full bg-white/60 animate-pulse"></div>
