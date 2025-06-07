@@ -13,7 +13,7 @@ const PORT = process.env.PORT;
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://wechat-22ij.onrender.com",
     credentials: true,
   })
 );
