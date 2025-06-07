@@ -89,7 +89,7 @@ function MessageArea() {
         <div className="flex flex-col w-full h-100vh">
           {/* Header */}
           <div className="w-full h-[90px] lg:h-[100px] bg-purple-600 rounded-b-[30px] flex shadow-md
-          px-[10px] md:px-[20px] items-center gap-[14px] lg:gap-[20px]">
+          px-[10px] md:px-[20px] items-center gap-[14px] lg:gap-[20px] sticky top-0 z-50">
             <div
               className="cursor-pointer hover:shadow-md hover:scale-105 transition duration-200"
               onClick={() => dispatch(setSelectedUser(null))}
