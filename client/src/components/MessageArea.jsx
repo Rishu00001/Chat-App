@@ -15,7 +15,9 @@ import { setMessages } from "../redux/messageSlice";
 import MessageAreaShimmer from "./shimmer/shimmerMessageArea";
 
 function MessageArea() {
-  const { selectedUser, userData, socket , loading} = useSelector((state) => state.user);
+  const { selectedUser, userData, socket, loading } = useSelector(
+    (state) => state.user
+  );
   const { messages = [] } = useSelector((state) => state.message); // default to []
   const dispatch = useDispatch();
 
@@ -44,9 +46,8 @@ function MessageArea() {
       sender: userData._id,
       message: input,
       image: frontendImage,
-      createdAt : Date.now()
-    
-    }
+      createdAt: Date.now(),
+    };
     // Show message instantly
     dispatch(setMessages([...messages, tempMessage]));
     setFrontendImage(null);
@@ -80,10 +81,10 @@ function MessageArea() {
     socket.on("newMessage", handleNewMessage);
     return () => socket.off("newMessage", handleNewMessage);
   }, [socket, messages]);
-  if(loading) return <MessageAreaShimmer/>
+  if (loading) return <MessageAreaShimmer />;
   return (
     <div
-      className={`w-full h-[100vh] lg:px-[10px] lg:w-[70%] relative ${
+      className={`w-full h-[calc(100vh - env(safe-area-inset-top))] lg:px-[10px] lg:w-[70%] relative ${
         selectedUser ? "flex" : "hidden"
       } lg:block bg-slate-300 lg:border-l-2 lg:border-gray-300 overflow-hidden`}
     >
@@ -148,7 +149,7 @@ function MessageArea() {
                       hour: "2-digit",
                       minute: "2-digit",
                       hour12: false,
-                    })} 
+                    })}
                   />
                 )
               )}
