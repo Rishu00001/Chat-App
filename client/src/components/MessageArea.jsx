@@ -93,7 +93,7 @@ function MessageArea() {
           {/* Header */}
           <div
             className="w-full h-[90px] lg:h-[100px] bg-purple-600 rounded-b-[30px] flex shadow-md
-          px-[10px] md:px-[20px] items-center gap-[14px] lg:gap-[20px] fixed top-0 z-50 pt-[20px]"
+          px-[10px] md:px-[20px] items-center gap-[14px] lg:gap-[20px] fixed top-0 z-50 pt-[10px]"
           >
             <div
               className="cursor-pointer hover:shadow-md hover:scale-105 transition duration-200"
