@@ -117,7 +117,7 @@ function MessageArea() {
   if (loading) return <MessageAreaShimmer />;
   return (
     <div
-      className={`w-full h-[calc(100vh - env(safe-area-inset-top))] lg:px-[10px] lg:w-[70%] relative ${
+      className={`w-full h-[100%] lg:px-[10px] lg:w-[70%] relative ${
         selectedUser ? "flex" : "hidden"
       } lg:block bg-slate-300 lg:border-l-2 lg:border-gray-300 overflow-hidden`}
     >

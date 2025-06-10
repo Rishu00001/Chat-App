@@ -12,7 +12,7 @@ function Home() {
   if(userData) useSetOtherUsers();
   getMessages();
   return (
-    <div className=' w-full h-[100vh] flex overflow-hidden'>
+    <div className=' w-full h-[100dvh] flex overflow-hidden'>
       <Sidebar/>
       <MessageArea/>
     </div>

@@ -64,7 +64,7 @@ function Sidebar() {
 
   return (
     <div
-      className={`w-full h-full lg:w-[30%] bg-slate-200 lg:block overflow-hidden ${
+      className={`w-full h-[100%] lg:w-[30%] bg-slate-200 lg:block overflow-hidden ${
         !selectedUser ? "block" : "hidden"
       }`}
     >
