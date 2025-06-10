@@ -33,6 +33,11 @@ const userSlice = createSlice({
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
+     updateSelectedUserLastSeen: (state, action) => {
+      if(state.selectedUser && state.selectedUser._id === action.payload.userId){
+        state.selectedUser.lastseen = action.payload.lastseen;
+      }
+    },
   },
 });
 
@@ -43,7 +48,8 @@ export const {
   setSelectedUser,
   setSocket,
   setOnlineUsers,
-  setSearchData
+  setSearchData,
+  updateSelectedUserLastSeen
 } = userSlice.actions;
 
 export default userSlice.reducer;

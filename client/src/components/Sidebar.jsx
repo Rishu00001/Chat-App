@@ -6,6 +6,7 @@ import { RxCross2 } from "react-icons/rx";
 import { BiLogOutCircle } from "react-icons/bi";
 import axios from "axios";
 import { serverURL } from "../main";
+import { CgSpinner } from "react-icons/cg";
 import {
   setOtherUsers,
   setSearchData,
@@ -19,19 +20,25 @@ function Sidebar() {
     useSelector((state) => state.user);
   let [search, setSearch] = useState(false);
   let [input, setInput] = useState("");
+  let [loggingOut, setLoggingOut] = useState(false);
   let dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
+      setLoggingOut(true);
       await axios.get(`${serverURL}/api/auth/logout`, {
         withCredentials: true,
       });
-      dispatch(setUserData(null));
-      dispatch(setOtherUsers(null));
+        dispatch(setUserData(null));
+        dispatch(setOtherUsers(null));
+        setLoggingOut(false);
       navigate("/login");
     } catch (error) {
       console.log("Error in logging out", error);
+      setTimeout(() => {
+        setLoggingOut(false);
+      }, 1000);
     }
   };
 
@@ -66,7 +73,11 @@ function Sidebar() {
         className="w-[60px] h-[60px] rounded-full overflow-hidden flex justify-center items-center shadow-gray-600 shadow-lg mt-[20px] fixed bottom-[20px] left-[10px] bg-purple-500"
         onClick={handleLogout}
       >
-        <BiLogOutCircle className="w-[20px] h-[20px] text-gray-700 cursor-pointer hover:text-gray-400 hover:w-[22px] hover:h-[22px]" />
+        {!loggingOut ? (
+          <BiLogOutCircle className="w-[20px] h-[20px] text-gray-700 cursor-pointer hover:text-gray-400 hover:w-[22px] hover:h-[22px]" />
+        ) : (
+          <CgSpinner className="animate-spin inline font-bold text-2xl" />
+        )}
       </div>
 
       {/* Header */}

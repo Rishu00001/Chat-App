@@ -12,7 +12,14 @@ import MessageAreaShimmer from "./components/shimmer/shimmerMessageArea.jsx";
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { serverURL } from "./main.jsx";
-import { setOnlineUsers, setSocket } from "./redux/userSlice.js";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import {
+  setOnlineUsers,
+  setSelectedUser,
+  setSocket,
+  updateSelectedUserLastSeen,
+} from "./redux/userSlice.js";
 function App() {
   useSetCurrentUser();
   const { userData, loading, socket, onlineUsers } = useSelector(
@@ -42,24 +49,27 @@ function App() {
     );
   }
   return (
-    <Routes>
-      <Route
-        path="/login"
-        element={!userData ? <Login /> : <Navigate to="/" />}
-      />
-      <Route
-        path="/signup"
-        element={!userData ? <Signup /> : <Navigate to="/profile" />}
-      />
-      <Route
-        path="/"
-        element={userData ? <Home /> : <Navigate to="/login" />}
-      />
-      <Route
-        path="/profile"
-        element={userData ? <Profile /> : <Navigate to="/login" />}
-      />
-    </Routes>
+    <>
+      <Routes>
+        <Route
+          path="/login"
+          element={!userData ? <Login /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/signup"
+          element={!userData ? <Signup /> : <Navigate to="/profile" />}
+        />
+        <Route
+          path="/"
+          element={userData ? <Home /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/profile"
+          element={userData ? <Profile /> : <Navigate to="/login" />}
+        />
+      </Routes>
+      <ToastContainer position="top-center" />
+    </>
   );
 }
 

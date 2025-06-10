@@ -1,10 +1,16 @@
-import React, { useState} from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { serverURL } from "../main";
 import axios from "axios";
-import { setOtherUsers, setSelectedUser, setUserData } from "../redux/userSlice";
+import { toast } from "react-toastify";
+import { CgSpinner } from "react-icons/cg";
+import {
+  setOtherUsers,
+  setSelectedUser,
+  setUserData,
+} from "../redux/userSlice";
 function Signup() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -13,6 +19,7 @@ function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [signingUp, setSigninUp] = useState(false);
 
   const togglePassword = () => {
     setShowPassword((prev) => !prev);
@@ -20,21 +27,25 @@ function Signup() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    setSigninUp(true);
     try {
       const result = await axios.post(
         `${serverURL}/api/auth/signup`,
         { username, email, password },
         { withCredentials: true }
       );
-      dispatch(setUserData(result?.data?.user))
+      dispatch(setUserData(result?.data?.user));
       setError("");
       setEmail("");
       setPassword("");
       setUsername("");
+      setSigninUp(false);
+      toast.success("Account created successfully");
       navigate("/profile");
     } catch (error) {
       console.log(error);
       setError(error.response?.data?.message || "Something went wrong");
+      setSigninUp(false);
     }
   };
 
@@ -117,7 +128,14 @@ function Signup() {
             type="submit"
             className="mt-2 w-full py-3 bg-purple-600 text-white font-medium text-sm rounded-md hover:bg-purple-700 transition duration-200"
           >
-            Sign Up
+            {!signingUp ? (
+              "Create Account"
+            ) : (
+              <>
+                Creating{" "}
+                <CgSpinner className="animate-spin inline font-bold text-2xl" />
+              </>
+            )}
           </button>
         </form>
 

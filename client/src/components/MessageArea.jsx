@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import dp from "../assets/dp.webp";
-import { setSelectedUser } from "../redux/userSlice";
+import { setSelectedUser, updateSelectedUserLastSeen } from "../redux/userSlice";
 import { RiEmojiStickerLine } from "react-icons/ri";
 import { FaImages } from "react-icons/fa6";
 import { IoIosSend } from "react-icons/io";
@@ -15,7 +15,7 @@ import { setMessages } from "../redux/messageSlice";
 import MessageAreaShimmer from "./shimmer/shimmerMessageArea";
 
 function MessageArea() {
-  const { selectedUser, userData, socket, loading } = useSelector(
+  const { selectedUser, userData, socket, loading, onlineUsers } = useSelector(
     (state) => state.user
   );
   const { messages = [] } = useSelector((state) => state.message); // default to []
@@ -81,6 +81,39 @@ function MessageArea() {
     socket.on("newMessage", handleNewMessage);
     return () => socket.off("newMessage", handleNewMessage);
   }, [socket, messages]);
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleLastSeenUpdate = ({ userId, lastseen }) => {
+      console.log(lastseen);
+      
+      dispatch(updateSelectedUserLastSeen({ userId, lastseen }));
+    };
+
+    socket.on("userLastSeenUpdated", handleLastSeenUpdate);
+
+    return () => {
+      socket.off("userLastSeenUpdated", handleLastSeenUpdate);
+    };
+  }, [socket, dispatch]);
+
+  const lastseen = () => {
+    if (!onlineUsers || !selectedUser) return "";
+
+    if (onlineUsers.includes(selectedUser._id)) return "online";
+
+    return selectedUser?.lastseen
+      ? `last seen at ${new Date(selectedUser.lastseen).toLocaleTimeString(
+          "en-IN",
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          }
+        )}`
+      : "offline";
+  };
+
   if (loading) return <MessageAreaShimmer />;
   return (
     <div
@@ -109,7 +142,10 @@ function MessageArea() {
               />
             </div>
             <h1 className="text-white font-semibold text-[18px]">
-              {selectedUser?.name}
+              <div className="flex flex-col">
+                {selectedUser?.name}
+                <span className="text-sm text-zinc-300">{`${lastseen()}`}</span>
+              </div>
             </h1>
           </div>
 

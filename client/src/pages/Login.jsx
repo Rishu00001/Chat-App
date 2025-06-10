@@ -4,7 +4,12 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { serverURL } from "../main";
 import { useDispatch } from "react-redux";
-import { setOtherUsers, setSelectedUser, setUserData } from "../redux/userSlice";
+import {
+  setOtherUsers,
+  setSelectedUser,
+  setUserData,
+} from "../redux/userSlice";
+import { CgSpinner } from "react-icons/cg";
 function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -12,6 +17,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loggingIn, setLogginIn] = useState(false);
 
   const togglePassword = () => {
     setShowPassword((prev) => !prev);
@@ -19,20 +25,23 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLogginIn(true);
     try {
       const result = await axios.post(
         `${serverURL}/api/auth/login`,
         { email, password },
         { withCredentials: true }
       );
-      dispatch(setUserData(result?.data?.user))
-      dispatch(setSelectedUser(null))
+      dispatch(setUserData(result?.data?.user));
+      dispatch(setSelectedUser(null));
       setPassword("");
       setError("");
       setEmail("");
+      setLogginIn(false);
     } catch (error) {
       console.log(error);
       setError(error.response?.data?.message || "Something went wrong");
+      setLogginIn(false);
     }
   };
 
@@ -73,7 +82,7 @@ function Login() {
             <input
               name="password"
               type={showPassword ? "text" : "password"}
-              value = {password}
+              value={password}
               placeholder="Password"
               required
               className="w-full h-12 border border-purple-300 px-4 py-2 rounded-md outline-none bg-white text-sm focus:ring-2 focus:ring-purple-400 transition pr-10"
@@ -99,7 +108,13 @@ function Login() {
             type="submit"
             className="mt-2 w-full py-3 bg-purple-600 text-white font-medium text-sm rounded-md hover:bg-purple-700 transition duration-200"
           >
-            Log in
+            {!loggingIn ? (
+              "Log in"
+            ) : (
+              <>
+                Logging in <CgSpinner className="animate-spin inline font-bold text-2xl" />
+              </>
+            )}
           </button>
         </form>
 

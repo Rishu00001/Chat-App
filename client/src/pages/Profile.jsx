@@ -6,12 +6,13 @@ import { MdKeyboardArrowLeft } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { serverURL } from "../main";
 import { setUserData } from "../redux/userSlice";
+import { CgSpinner } from "react-icons/cg";
 import axios from "axios";
-
+import { toast } from "react-toastify";
 function Profile() {
   let navigate = useNavigate();
   let { userData, loading } = useSelector((state) => state.user);
-  
+
   const [name, setName] = useState(userData?.name || "");
   const [frontendImage, setFrontendImage] = useState(userData?.image || dp);
   const [backendImage, setBackendImage] = useState(null);
@@ -49,9 +50,11 @@ function Profile() {
       });
       setSaving(false);
       dispatch(setUserData(result.data));
+       toast.success("Your profile was updated!");
     } catch (error) {
       console.log(error);
       setSaving(false);
+       toast.error("Something went wrong");
     }
   };
 
@@ -141,7 +144,13 @@ function Profile() {
             className="mt-2 w-full py-3 bg-purple-600 text-white font-medium text-sm rounded-md hover:bg-purple-700 transition duration-200"
             disabled={saving}
           >
-            {saving ? "Saving..." : "Save Profile"}
+            {!saving ? (
+              "Save profile"
+            ) : (
+              <>
+                Saving <CgSpinner className="animate-spin inline font-bold text-2xl" />
+              </>
+            )}
           </button>
         </form>
       </div>
