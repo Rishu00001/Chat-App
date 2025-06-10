@@ -50,7 +50,7 @@ function Signup() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-slate-200 flex items-center justify-center px-4">
+    <div className="w-full min-h-[100dvh] bg-slate-200 flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white rounded-lg shadow-lg flex flex-col gap-6 pb-6 overflow-hidden">
         {/* Header */}
         <div className="w-full h-40 bg-purple-500 rounded-b-[25%] flex items-center justify-center shadow-md">

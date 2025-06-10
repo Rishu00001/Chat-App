@@ -2,7 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import dp from "../assets/dp.webp";
-import { setSelectedUser, updateSelectedUserLastSeen } from "../redux/userSlice";
+import {
+  setSelectedUser,
+  updateSelectedUserLastSeen,
+} from "../redux/userSlice";
 import { RiEmojiStickerLine } from "react-icons/ri";
 import { FaImages } from "react-icons/fa6";
 import { IoIosSend } from "react-icons/io";
@@ -54,6 +57,7 @@ function MessageArea() {
     try {
       const formData = new FormData();
       formData.append("message", input);
+      setInput("");
       if (backendImage) formData.append("image", backendImage);
 
       const res = await axios.post(
@@ -61,15 +65,13 @@ function MessageArea() {
         formData,
         { withCredentials: true }
       );
-
       // Replace temp message with real one
       const updatedMessages = [...messages, res.data];
       dispatch(setMessages(updatedMessages));
     } catch (err) {
       console.error("Send message error:", err);
     }
-
-    setInput("");
+    setInput("")
     setBackendImage(null);
   };
 
@@ -80,13 +82,14 @@ function MessageArea() {
     };
     socket.on("newMessage", handleNewMessage);
     return () => socket.off("newMessage", handleNewMessage);
-  }, [socket, messages]);
+  }, [socket,messages]);
+
   useEffect(() => {
     if (!socket) return;
 
     const handleLastSeenUpdate = ({ userId, lastseen }) => {
       console.log(lastseen);
-      
+
       dispatch(updateSelectedUserLastSeen({ userId, lastseen }));
     };
 

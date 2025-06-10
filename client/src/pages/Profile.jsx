@@ -59,7 +59,7 @@ function Profile() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-slate-200 flex items-center justify-center px-4">
+    <div className="w-full min-h-[100dvh] bg-slate-200 flex items-center justify-center px-4">
       <div
         className="fixed top-5 left-5 rounded-full border-2 border-gray-300 bg-white hover:shadow-xl transition-all duration-200 cursor-pointer flex items-center justify-center w-14 h-14"
         onClick={() => {
