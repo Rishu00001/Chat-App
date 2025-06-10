@@ -117,7 +117,7 @@ function MessageArea() {
   if (loading) return <MessageAreaShimmer />;
   return (
     <div
-      className={`w-full h-[100%] lg:px-[10px] lg:w-[70%] relative ${
+      className={`w-full h-full lg:px-[10px] lg:w-[70%] relative ${
         selectedUser ? "flex" : "hidden"
       } lg:block bg-slate-300 lg:border-l-2 lg:border-gray-300 overflow-hidden`}
     >
@@ -150,7 +150,7 @@ function MessageArea() {
           </div>
 
           {/* Message Box */}
-          <div className="w-full h-[78vh] flex flex-col py-[30px] px-[20px] overflow-auto gap-[15px]">
+          <div className="w-full h-[78dvh] flex flex-col py-[30px] px-[20px] overflow-auto gap-[15px]">
             {showPicker && (
               <div className="absolute bottom-[80px] left-[20px] z-[100]">
                 <EmojiPicker
