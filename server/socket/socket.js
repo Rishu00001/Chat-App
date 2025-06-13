@@ -2,13 +2,14 @@ import http from "http";
 import express from "express";
 import { Server } from "socket.io";
 import User from "../models/user.model.js";
+import { log } from "console";
 
 let app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: `https://wechat-22ij.onrender.com`, // Update if frontend URL changes
+    origin: `http://localhost:5173`, // Update if frontend URL changes
   },
 });
 
@@ -30,7 +31,15 @@ io.on("connection", (socket) => {
   socket.on("typing", ({ receiverId }) => {
     const receiverSocketId = userSocketMap[receiverId];
     if (receiverSocketId) {
+      console.log("typing started");
+
       io.to(receiverSocketId).emit("typing", { senderId: userId });
+    }
+  });
+  socket.on("stop-typing", ({ receiverId }) => {
+    const receiverSocketId = userSocketMap[receiverId];
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("stop-typing", { senderId: userId });
     }
   });
 

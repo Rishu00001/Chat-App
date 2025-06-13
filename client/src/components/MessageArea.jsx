@@ -1,4 +1,3 @@
-// MessageArea.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { MdKeyboardArrowLeft } from "react-icons/md";
@@ -6,7 +5,7 @@ import dp from "../assets/dp.webp";
 import {
   setSelectedUser,
   updateSelectedUserLastSeen,
-  setTypingStatus
+  setTypingStatus,
 } from "../redux/userSlice";
 import { RiEmojiStickerLine } from "react-icons/ri";
 import { FaImages } from "react-icons/fa6";
@@ -18,6 +17,7 @@ import axios from "axios";
 import { serverURL } from "../main";
 import { setMessages } from "../redux/messageSlice";
 import MessageAreaShimmer from "./shimmer/shimmerMessageArea";
+import debounce from "../utils/debounce";
 
 function MessageArea() {
   const {
@@ -26,7 +26,7 @@ function MessageArea() {
     socket,
     loading,
     onlineUsers,
-    typingStatusMap
+    typingStatusMap,
   } = useSelector((state) => state.user);
   const { messages = [] } = useSelector((state) => state.message);
   const dispatch = useDispatch();
@@ -56,11 +56,12 @@ function MessageArea() {
       sender: userData._id,
       message: input,
       image: frontendImage,
-      createdAt: Date.now()
+      createdAt: Date.now(),
     };
 
     dispatch(setMessages([...messages, tempMessage]));
     setFrontendImage(null);
+
     try {
       const formData = new FormData();
       formData.append("message", input);
@@ -76,33 +77,52 @@ function MessageArea() {
     } catch (err) {
       console.error("Send message error:", err);
     }
+
     setInput("");
     setBackendImage(null);
   };
 
   useEffect(() => {
     if (!socket) return;
+
     const handleNewMessage = (mess) => {
       dispatch(setMessages([...messages, mess]));
     };
+
     socket.on("newMessage", handleNewMessage);
     return () => socket.off("newMessage", handleNewMessage);
   }, [socket, messages]);
 
   useEffect(() => {
     if (!socket) return;
+
     const handleLastSeenUpdate = ({ userId, lastseen }) => {
       dispatch(updateSelectedUserLastSeen({ userId, lastseen }));
     };
+
+    const handleTyping = ({ senderId }) => {
+      console.log("📥 typing received from:", senderId);
+      dispatch(setTypingStatus({ userId: senderId, isTyping: true }));
+    };
+
+    const handleStopTyping = ({ senderId }) => {
+      console.log("📥 stop-typing received from:", senderId);
+      dispatch(setTypingStatus({ userId: senderId, isTyping: false }));
+    };
+
     socket.on("userLastSeenUpdated", handleLastSeenUpdate);
+    socket.on("typing", handleTyping);
+    socket.on("stop-typing", handleStopTyping);
+
     return () => {
       socket.off("userLastSeenUpdated", handleLastSeenUpdate);
+      socket.off("typing", handleTyping);
+      socket.off("stop-typing", handleStopTyping);
     };
   }, [socket, dispatch]);
 
   const lastseen = () => {
     if (!onlineUsers || !selectedUser) return "";
-
     if (onlineUsers.includes(selectedUser._id)) return "online";
 
     return selectedUser?.lastseen
@@ -111,11 +131,31 @@ function MessageArea() {
           {
             hour: "2-digit",
             minute: "2-digit",
-            hour12: false
+            hour12: false,
           }
         )}`
       : "offline";
   };
+
+  const emitTyping = () => {
+    if (socket && selectedUser?._id) {
+      console.log("🟢 typing emitted to:", selectedUser._id);
+      socket.emit("typing", { receiverId: selectedUser._id });
+    }
+  };
+
+  // ✅ useRef to persist debounce function
+  const emitStopTypingDebounced = useRef(null);
+
+  // ✅ Create debounce function whenever selectedUser changes
+  useEffect(() => {
+    if (!socket || !selectedUser?._id) return;
+
+    emitStopTypingDebounced.current = debounce(() => {
+      console.log("⛔ stop-typing emitted to:", selectedUser._id);
+      socket.emit("stop-typing", { receiverId: selectedUser._id });
+    }, 2000);
+  }, [selectedUser, socket]);
 
   if (loading) return <MessageAreaShimmer />;
 
@@ -135,7 +175,7 @@ function MessageArea() {
             >
               <MdKeyboardArrowLeft className="w-8 h-8 text-white" />
             </div>
-            <div className="relative w-[50px] h-[50px] rounded-full hover:shadow-md transition duration-200 cursor-pointer bg-slate-100">
+            <div className="relative w-[50px] h-[50px] rounded-full bg-slate-100">
               <img
                 src={selectedUser?.image || dp}
                 alt="Profile"
@@ -149,7 +189,7 @@ function MessageArea() {
                   {selectedUser &&
                   typingStatusMap?.[selectedUser._id] &&
                   selectedUser._id !== userData._id
-                    ? ` typing...`
+                    ? `typing...`
                     : lastseen()}
                 </span>
               </div>
@@ -177,22 +217,28 @@ function MessageArea() {
                     key={mess._id}
                     image={mess.image}
                     message={mess.message}
-                    time={new Date(mess.createdAt).toLocaleTimeString("en-IN", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false
-                    })}
+                    time={new Date(mess.createdAt).toLocaleTimeString(
+                      "en-IN",
+                      {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
+                      }
+                    )}
                   />
                 ) : (
                   <ReceiverMessage
                     key={mess._id}
                     image={mess.image}
                     message={mess.message}
-                    time={new Date(mess.createdAt).toLocaleTimeString("en-IN", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false
-                    })}
+                    time={new Date(mess.createdAt).toLocaleTimeString(
+                      "en-IN",
+                      {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
+                      }
+                    )}
                   />
                 )
               )}
@@ -242,7 +288,8 @@ function MessageArea() {
               onChange={(e) => {
                 setInput(e.target.value);
                 if (socket && selectedUser?._id) {
-                  socket.emit("typing", { receiverId: selectedUser._id });
+                  emitTyping();
+                  emitStopTypingDebounced.current?.(); // ✅ calls latest debounce
                 }
               }}
             />
