@@ -10,6 +10,7 @@ const userSlice = createSlice({
     socket: null,
     onlineUsers: null,
     searchData: null,
+    typingStatusMap: {},
   },
   reducers: {
     setUserData: (state, action) => {
@@ -33,10 +34,20 @@ const userSlice = createSlice({
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
-     updateSelectedUserLastSeen: (state, action) => {
-      if(state.selectedUser && state.selectedUser._id === action.payload.userId){
+    updateSelectedUserLastSeen: (state, action) => {
+      if (
+        state.selectedUser &&
+        state.selectedUser._id === action.payload.userId
+      ) {
         state.selectedUser.lastseen = action.payload.lastseen;
       }
+    },
+    setTypingStatus: (state, action) => {
+      const { userId, isTyping } = action.payload;
+      state.typingStatusMap = {
+        ...state.typingStatusMap,
+        [userId]: isTyping,
+      };
     },
   },
 });
@@ -49,7 +60,8 @@ export const {
   setSocket,
   setOnlineUsers,
   setSearchData,
-  updateSelectedUserLastSeen
+  updateSelectedUserLastSeen,
+  setTypingStatus,
 } = userSlice.actions;
 
 export default userSlice.reducer;

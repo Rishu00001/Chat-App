@@ -1,3 +1,4 @@
+// MessageArea.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { MdKeyboardArrowLeft } from "react-icons/md";
@@ -5,6 +6,7 @@ import dp from "../assets/dp.webp";
 import {
   setSelectedUser,
   updateSelectedUserLastSeen,
+  setTypingStatus
 } from "../redux/userSlice";
 import { RiEmojiStickerLine } from "react-icons/ri";
 import { FaImages } from "react-icons/fa6";
@@ -18,10 +20,15 @@ import { setMessages } from "../redux/messageSlice";
 import MessageAreaShimmer from "./shimmer/shimmerMessageArea";
 
 function MessageArea() {
-  const { selectedUser, userData, socket, loading, onlineUsers } = useSelector(
-    (state) => state.user
-  );
-  const { messages = [] } = useSelector((state) => state.message); // default to []
+  const {
+    selectedUser,
+    userData,
+    socket,
+    loading,
+    onlineUsers,
+    typingStatusMap
+  } = useSelector((state) => state.user);
+  const { messages = [] } = useSelector((state) => state.message);
   const dispatch = useDispatch();
 
   const [showPicker, setShowPicker] = useState(false);
@@ -49,9 +56,9 @@ function MessageArea() {
       sender: userData._id,
       message: input,
       image: frontendImage,
-      createdAt: Date.now(),
+      createdAt: Date.now()
     };
-    // Show message instantly
+
     dispatch(setMessages([...messages, tempMessage]));
     setFrontendImage(null);
     try {
@@ -65,13 +72,11 @@ function MessageArea() {
         formData,
         { withCredentials: true }
       );
-      // Replace temp message with real one
-      const updatedMessages = [...messages, res.data];
-      dispatch(setMessages(updatedMessages));
+      dispatch(setMessages([...messages, res.data]));
     } catch (err) {
       console.error("Send message error:", err);
     }
-    setInput("")
+    setInput("");
     setBackendImage(null);
   };
 
@@ -82,19 +87,14 @@ function MessageArea() {
     };
     socket.on("newMessage", handleNewMessage);
     return () => socket.off("newMessage", handleNewMessage);
-  }, [socket,messages]);
+  }, [socket, messages]);
 
   useEffect(() => {
     if (!socket) return;
-
     const handleLastSeenUpdate = ({ userId, lastseen }) => {
-      console.log(lastseen);
-
       dispatch(updateSelectedUserLastSeen({ userId, lastseen }));
     };
-
     socket.on("userLastSeenUpdated", handleLastSeenUpdate);
-
     return () => {
       socket.off("userLastSeenUpdated", handleLastSeenUpdate);
     };
@@ -111,13 +111,14 @@ function MessageArea() {
           {
             hour: "2-digit",
             minute: "2-digit",
-            hour12: false,
+            hour12: false
           }
         )}`
       : "offline";
   };
 
   if (loading) return <MessageAreaShimmer />;
+
   return (
     <div
       className={`w-full h-full lg:px-[10px] lg:w-[70%] relative ${
@@ -127,10 +128,7 @@ function MessageArea() {
       {selectedUser ? (
         <div className="flex flex-col w-full h-100vh">
           {/* Header */}
-          <div
-            className="w-full h-[90px] lg:h-[100px] bg-purple-600 rounded-b-[30px] flex shadow-md
-          px-[10px] md:px-[20px] items-center gap-[14px] lg:gap-[20px] sticky top-0 z-50"
-          >
+          <div className="w-full h-[80px] lg:h-[100px] bg-purple-600 rounded-b-[30px] flex shadow-md px-[10px] md:px-[20px] items-center gap-[14px] lg:gap-[20px] sticky top-0 z-50">
             <div
               className="cursor-pointer hover:shadow-md hover:scale-105 transition duration-200"
               onClick={() => dispatch(setSelectedUser(null))}
@@ -147,13 +145,19 @@ function MessageArea() {
             <h1 className="text-white font-semibold text-[18px]">
               <div className="flex flex-col">
                 {selectedUser?.name}
-                <span className="text-sm text-zinc-300">{`${lastseen()}`}</span>
+                <span className="text-sm text-zinc-300">
+                  {selectedUser &&
+                  typingStatusMap?.[selectedUser._id] &&
+                  selectedUser._id !== userData._id
+                    ? ` typing...`
+                    : lastseen()}
+                </span>
               </div>
             </h1>
           </div>
 
-          {/* Message Box */}
-          <div className="w-full h-[78dvh] flex flex-col py-[30px] px-[20px] overflow-auto gap-[15px]">
+          {/* Messages */}
+          <div className="w-full h-[80%] lg:h-[76dvh] flex flex-col py-[30px] px-[20px] overflow-auto gap-[15px]">
             {showPicker && (
               <div className="absolute bottom-[80px] left-[20px] z-[100]">
                 <EmojiPicker
@@ -176,7 +180,7 @@ function MessageArea() {
                     time={new Date(mess.createdAt).toLocaleTimeString("en-IN", {
                       hour: "2-digit",
                       minute: "2-digit",
-                      hour12: false,
+                      hour12: false
                     })}
                   />
                 ) : (
@@ -187,7 +191,7 @@ function MessageArea() {
                     time={new Date(mess.createdAt).toLocaleTimeString("en-IN", {
                       hour: "2-digit",
                       minute: "2-digit",
-                      hour12: false,
+                      hour12: false
                     })}
                   />
                 )
@@ -203,7 +207,7 @@ function MessageArea() {
         </div>
       )}
 
-      {/* Input Field */}
+      {/* Input */}
       {selectedUser && (
         <div className="w-full lg:w-[70%] h-[60px] fixed bottom-[20px] flex items-center justify-center">
           {frontendImage && (
@@ -235,7 +239,12 @@ function MessageArea() {
               value={input}
               className="w-full h-full bg-transparent outline-none text-white"
               placeholder="Message"
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => {
+                setInput(e.target.value);
+                if (socket && selectedUser?._id) {
+                  socket.emit("typing", { receiverId: selectedUser._id });
+                }
+              }}
             />
             <div
               onClick={() => image.current.click()}

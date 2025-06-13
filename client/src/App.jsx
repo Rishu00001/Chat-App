@@ -12,19 +12,19 @@ import MessageAreaShimmer from "./components/shimmer/shimmerMessageArea.jsx";
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { serverURL } from "./main.jsx";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   setOnlineUsers,
   setSelectedUser,
   setSocket,
   updateSelectedUserLastSeen,
+  setTypingStatus,
 } from "./redux/userSlice.js";
 function App() {
   useSetCurrentUser();
-  const { userData, loading, socket, onlineUsers } = useSelector(
-    (state) => state.user
-  );
+  const { userData, loading, socket, onlineUsers, typingStatusMap } =
+    useSelector((state) => state.user);
   let dispatch = useDispatch();
   useEffect(() => {
     if (!userData?._id) return;
@@ -35,6 +35,14 @@ function App() {
     dispatch(setSocket(socketio));
     socketio.on("getOnlineUsers", (users) => {
       dispatch(setOnlineUsers(users));
+    });
+    socketio.on("typing", ({ senderId }) => {
+      dispatch(setTypingStatus({ userId: senderId, isTyping: true }));
+      console.log(typingStatusMap);
+
+      setTimeout(() => {
+        dispatch(setTypingStatus({ userId: senderId, isTyping: false }));
+      }, 2000); // ⏳ Debounce period
     });
     return () => socketio.close();
   }, [userData]);
