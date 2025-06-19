@@ -101,12 +101,12 @@ function MessageArea() {
     };
 
     const handleTyping = ({ senderId }) => {
-      console.log("📥 typing received from:", senderId);
+      console.log("typing received from:", senderId);
       dispatch(setTypingStatus({ userId: senderId, isTyping: true }));
     };
 
     const handleStopTyping = ({ senderId }) => {
-      console.log("📥 stop-typing received from:", senderId);
+      console.log("stop-typing received from:", senderId);
       dispatch(setTypingStatus({ userId: senderId, isTyping: false }));
     };
 
@@ -139,22 +139,22 @@ function MessageArea() {
 
   const emitTyping = () => {
     if (socket && selectedUser?._id) {
-      console.log("🟢 typing emitted to:", selectedUser._id);
+      console.log(" typing emitted to:", selectedUser._id);
       socket.emit("typing", { receiverId: selectedUser._id });
     }
   };
 
-  // ✅ useRef to persist debounce function
+  //  useRef to persist debounce function
   const emitStopTypingDebounced = useRef(null);
 
-  // ✅ Create debounce function whenever selectedUser changes
+  // Create debounce function whenever selectedUser changes
   useEffect(() => {
     if (!socket || !selectedUser?._id) return;
 
     emitStopTypingDebounced.current = debounce(() => {
-      console.log("⛔ stop-typing emitted to:", selectedUser._id);
+      console.log("stop-typing emitted to:", selectedUser._id);
       socket.emit("stop-typing", { receiverId: selectedUser._id });
-    }, 2000);
+    }, 1000);
   }, [selectedUser, socket]);
 
   if (loading) return <MessageAreaShimmer />;
@@ -282,6 +282,7 @@ function MessageArea() {
             />
             <input
               type="text"
+              autoComplete="off"
               value={input}
               className="w-full h-full bg-transparent outline-none text-white"
               placeholder="Message"
@@ -289,7 +290,7 @@ function MessageArea() {
                 setInput(e.target.value);
                 if (socket && selectedUser?._id) {
                   emitTyping();
-                  emitStopTypingDebounced.current?.(); // ✅ calls latest debounce
+                  emitStopTypingDebounced.current?.(); //  calls latest debounce
                 }
               }}
             />

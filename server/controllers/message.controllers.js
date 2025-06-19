@@ -18,18 +18,19 @@ export const sendMessage = async (req, res) => {
     if (req.file?.path) {
       image = await uploadOnCloudinary(req.file.path);
     }
-
-    let conversation = await Conversation.findOne({
-      participants: { $all: [sender, receiver] },
-    });
-
     const newMessage = await Message.create({
       sender,
       receiver,
       message,
       image,
     });
-
+    const receiverSocketId = getReceiverSocketId(receiver);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
+    let conversation = await Conversation.findOne({
+      participants: { $all: [sender, receiver] },
+    });
     if (!conversation) {
       conversation = await Conversation.create({
         participants: [sender, receiver],
@@ -43,10 +44,6 @@ export const sendMessage = async (req, res) => {
     const populatedMessage = await Message.findById(newMessage._id).populate(
       "sender receiver"
     );
-    const receiverSocketId = getReceiverSocketId(receiver);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", newMessage);
-    }
     return res.status(201).json(populatedMessage);
   } catch (error) {
     return res
