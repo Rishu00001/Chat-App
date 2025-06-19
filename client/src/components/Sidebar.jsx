@@ -30,9 +30,9 @@ function Sidebar() {
       await axios.get(`${serverURL}/api/auth/logout`, {
         withCredentials: true,
       });
-        dispatch(setUserData(null));
-        dispatch(setOtherUsers(null));
-        setLoggingOut(false);
+      dispatch(setUserData(null));
+      dispatch(setOtherUsers(null));
+      setLoggingOut(false);
       navigate("/login");
     } catch (error) {
       console.log("Error in logging out", error);

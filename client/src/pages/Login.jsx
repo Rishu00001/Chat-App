@@ -10,6 +10,7 @@ import {
   setUserData,
 } from "../redux/userSlice";
 import { CgSpinner } from "react-icons/cg";
+
 function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -46,50 +47,59 @@ function Login() {
   };
 
   return (
-    <div className="w-full min-h-[100dvh] bg-slate-200 flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-lg flex flex-col gap-6 pb-6 overflow-hidden">
+    <div className="w-screen h-screen bg-white flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-md flex flex-col gap-6 pb-8 overflow-hidden relative">
+        {/* Floating Logo */}
+        <div className="absolute top-[-35px] left-1/2 -translate-x-1/2 bg-white rounded-full p-3">
+          <div className="text-purple-600 font-bold text-xl">💬</div>
+        </div>
+
         {/* Header */}
-        <div className="w-full h-40 bg-purple-500 rounded-b-[25%] flex items-center justify-center shadow-md">
-          <h1 className="text-gray-100 font-bold text-xl sm:text-2xl text-center">
-            Login to <br />
-            <span className="text-white text-3xl sm:text-4xl">weChat</span>
+        <div className="pt-16 text-center px-6">
+          <h1 className="text-2xl font-bold text-gray-800">
+            Welcome back to <span className="text-purple-600">weChat</span>
           </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Please login to continue chatting
+          </p>
         </div>
 
         {/* Form */}
         <form
-          className="w-full flex flex-col gap-4 px-5 mt-4"
+          className="w-full flex flex-col gap-4 px-6 mt-4"
           onSubmit={handleLogin}
         >
           {/* Email Field */}
           <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Email</label>
             <input
               name="email"
               type="email"
               value={email}
-              placeholder="Email"
+              placeholder="you@example.com"
               required
-              className="w-full h-12 border border-purple-300 px-4 py-2 rounded-md outline-none bg-white text-sm focus:ring-2 focus:ring-purple-400 transition"
+              className="w-full h-12 border border-gray-300 px-4 py-2 rounded-lg outline-none bg-white text-sm focus:ring-2 focus:ring-purple-400"
               onChange={(e) => setEmail(e.target.value)}
             />
-            <p className="h-5 text-xs text-red-600 font-medium ml-[8px]">
+            <p className="h-5 text-xs text-red-600 font-medium">
               {error.toLowerCase().includes("user") ? error : ""}
             </p>
           </div>
 
           {/* Password Field */}
           <div className="relative flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Password</label>
             <input
               name="password"
               type={showPassword ? "text" : "password"}
               value={password}
-              placeholder="Password"
+              placeholder="Enter your password"
               required
-              className="w-full h-12 border border-purple-300 px-4 py-2 rounded-md outline-none bg-white text-sm focus:ring-2 focus:ring-purple-400 transition pr-10"
+              className="w-full h-12 border border-gray-300 px-4 py-2 rounded-lg outline-none bg-white text-sm focus:ring-2 focus:ring-purple-400 pr-10"
               onChange={(e) => setPassword(e.target.value)}
             />
             <div
-              className="absolute top-3 right-3 text-gray-500 cursor-pointer"
+              className="absolute top-9 right-3 text-gray-500 cursor-pointer"
               onClick={togglePassword}
             >
               {showPassword ? (
@@ -98,7 +108,7 @@ function Login() {
                 <FaEyeSlash className="w-5 h-5" />
               )}
             </div>
-            <p className="h-5 text-xs text-red-600 font-medium ml-[8px]">
+            <p className="h-5 text-xs text-red-600 font-medium">
               {error.toLowerCase().includes("password") ? error : ""}
             </p>
           </div>
@@ -106,20 +116,20 @@ function Login() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="mt-2 w-full py-3 bg-purple-600 text-white font-medium text-sm rounded-md hover:bg-purple-700 transition duration-200"
+            className="mt-2 w-full py-3 bg-purple-600 text-white font-semibold text-sm rounded-lg hover:bg-purple-700 transition duration-200"
           >
             {!loggingIn ? (
               "Log in"
             ) : (
               <>
-                Logging in <CgSpinner className="animate-spin inline font-bold text-2xl" />
+                Logging in <CgSpinner className="animate-spin inline font-bold text-xl ml-2" />
               </>
             )}
           </button>
         </form>
 
-        {/* General Error Message (Bottom) */}
-        <div className="h-5 mt-1 text-center">
+        {/* General Error Message */}
+        <div className="h-5 text-center mt-1">
           {!error.toLowerCase().includes("user") &&
             !error.toLowerCase().includes("password") &&
             error && (
@@ -127,16 +137,14 @@ function Login() {
             )}
         </div>
 
-        {/* Optional Footer */}
-        <p className="text-sm text-center text-gray-500 mt-2">
-          Don't have an account?{" "}
+        {/* Footer */}
+        <p className="text-sm text-center text-gray-500 mt-4">
+          Don't have an account?{' '}
           <span
-            className="text-purple-600 font-medium cursor-pointer underline"
-            onClick={() => {
-              navigate("/signup");
-            }}
+            className="text-purple-600 font-semibold cursor-pointer underline"
+            onClick={() => navigate("/signup")}
           >
-            Create now
+            Sign up
           </span>
         </p>
       </div>

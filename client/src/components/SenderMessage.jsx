@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import dp from "../assets/dp.webp";
 import { CiTimer } from "react-icons/ci";
+import { useSelector } from "react-redux";
+
 function SenderMessage({ image, message, time }) {
   const scroll = useRef();
-
   useEffect(() => {
     scroll.current.scrollIntoView({ behavior: "smooth" });
   }, [image, message]);

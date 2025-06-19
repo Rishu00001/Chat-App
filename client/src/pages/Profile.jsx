@@ -9,6 +9,7 @@ import { setUserData } from "../redux/userSlice";
 import { CgSpinner } from "react-icons/cg";
 import axios from "axios";
 import { toast } from "react-toastify";
+
 function Profile() {
   let navigate = useNavigate();
   let { userData, loading } = useSelector((state) => state.user);
@@ -20,7 +21,6 @@ function Profile() {
   let [saving, setSaving] = useState(false);
   let dispatch = useDispatch();
 
-  // Sync local state when userData changes (important!)
   useEffect(() => {
     if (userData) {
       setName(userData.name || "");
@@ -50,48 +50,45 @@ function Profile() {
       });
       setSaving(false);
       dispatch(setUserData(result.data));
-       toast.success("Your profile was updated!");
+      toast.success("Your profile was updated!");
     } catch (error) {
       console.log(error);
       setSaving(false);
-       toast.error("Something went wrong");
+      toast.error("Something went wrong");
     }
   };
 
   return (
     <div className="w-full min-h-[100dvh] bg-slate-200 flex items-center justify-center px-4">
+      {/* Back Button */}
       <div
         className="fixed top-5 left-5 rounded-full border-2 border-gray-300 bg-white hover:shadow-xl transition-all duration-200 cursor-pointer flex items-center justify-center w-14 h-14"
-        onClick={() => {
-          navigate("/");
-        }}
+        onClick={() => navigate("/")}
       >
         <MdKeyboardArrowLeft className="w-8 h-8 text-gray-600 hover:text-black transition-colors duration-200" />
       </div>
 
+      {/* Form Container */}
       <div className="w-full max-w-md bg-transparent rounded-lg flex flex-col gap-6 pb-6 overflow-hidden">
         {/* Header */}
-        <div className="w-full h-40 bg-transparent rounded-b-[25%] flex flex-col items-center justify-center shadow-md relative">
+        <div className="w-full h-40 bg-gradient-to-r from-purple-500 to-purple-700 rounded-b-[25%] flex flex-col items-center justify-center shadow-lg relative">
           <div
-            className="relative w-[100px] h-[100px]"
-            onClick={() => {
-              image.current.click();
-            }}
+            className="relative w-[100px] h-[100px] hover:scale-105 transition-transform duration-300 cursor-pointer"
+            onClick={() => image.current.click()}
           >
             <img
               src={frontendImage}
               alt="Profile"
-              className="w-full h-full object-cover rounded-full border-4 border-purple-300"
+              className="w-full h-full object-cover rounded-full border-[5px] border-white shadow-md"
             />
-            {/* Camera icon on top edge */}
-            <IoCameraOutline className="absolute bottom-2 right-1 bg-white rounded-full p-1 w-6 h-6 text-gray-800 shadow z-10" />
+            <IoCameraOutline className="absolute bottom-2 right-1 bg-white rounded-full p-1 w-6 h-6 text-purple-700 shadow-md" />
           </div>
-          <h2 className="text-white font-semibold mt-2 text-xl">
-            <p className="text-zinc-400 font-semibold">{userData?.username}</p>
+          <h2 className="mt-2 text-lg font-semibold text-white tracking-wide">
+            @{userData?.username}
           </h2>
         </div>
 
-        {/* Form */}
+        {/* Profile Form */}
         <form
           className="w-full flex flex-col gap-4 px-5 mt-4"
           onSubmit={handleProfile}
@@ -103,7 +100,8 @@ function Profile() {
             ref={image}
             onChange={handleImage}
           />
-          {/* Name Field */}
+
+          {/* Name Input */}
           <div className="flex flex-col gap-1">
             <input
               name="name"
@@ -116,7 +114,7 @@ function Profile() {
             />
           </div>
 
-          {/* Username Field */}
+          {/* Username (read-only) */}
           <div className="flex flex-col gap-1">
             <input
               name="username"
@@ -127,7 +125,7 @@ function Profile() {
             />
           </div>
 
-          {/* Email Field */}
+          {/* Email (read-only) */}
           <div className="flex flex-col gap-1">
             <input
               name="email"
@@ -141,14 +139,15 @@ function Profile() {
           {/* Save Button */}
           <button
             type="submit"
-            className="mt-2 w-full py-3 bg-purple-600 text-white font-medium text-sm rounded-md hover:bg-purple-700 transition duration-200"
+            className="mt-2 w-full py-3 bg-purple-600 text-white font-medium text-sm rounded-md hover:bg-purple-700 active:scale-95 transition duration-200"
             disabled={saving}
           >
             {!saving ? (
               "Save profile"
             ) : (
               <>
-                Saving <CgSpinner className="animate-spin inline font-bold text-2xl" />
+                Saving{" "}
+                <CgSpinner className="animate-spin inline font-bold text-2xl" />
               </>
             )}
           </button>

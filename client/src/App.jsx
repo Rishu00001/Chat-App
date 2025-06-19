@@ -80,7 +80,7 @@ function App() {
           element={userData ? <Profile /> : <Navigate to="/login" />}
         />
       </Routes>
-      <ToastContainer position="top-center" />
+      <ToastContainer position="bottom-center"/>
     </>
   );
 }
