@@ -3,7 +3,7 @@ import dp from "../assets/dp.webp";
 import { IoCameraOutline } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { MdKeyboardArrowLeft } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { serverURL } from "../main";
 import { setUserData } from "../redux/userSlice";
 import { CgSpinner } from "react-icons/cg";
@@ -11,15 +11,17 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 function Profile() {
-  let navigate = useNavigate();
-  let { userData, loading } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { userData, loading } = useSelector((state) => state.user);
 
   const [name, setName] = useState(userData?.name || "");
   const [frontendImage, setFrontendImage] = useState(userData?.image || dp);
   const [backendImage, setBackendImage] = useState(null);
-  let image = useRef();
-  let [saving, setSaving] = useState(false);
-  let dispatch = useDispatch();
+  const image = useRef();
+
+  const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false); // 👉 spam protection
 
   useEffect(() => {
     if (userData) {
@@ -31,33 +33,45 @@ function Profile() {
   if (loading) return <h1>Loading...</h1>;
 
   const handleImage = (e) => {
-    let file = e.target.files[0];
+    const file = e.target.files[0];
     setBackendImage(file);
     setFrontendImage(URL.createObjectURL(file));
   };
 
   const handleProfile = async (e) => {
-    setSaving(true);
     e.preventDefault();
+
+    if (savingRef.current) return; 
+
+    savingRef.current = true;
+    setSaving(true);
+
     try {
-      let formData = new FormData();
+      const formData = new FormData();
       formData.append("name", name);
       if (backendImage) {
         formData.append("image", backendImage);
       }
-      let result = await axios.put(`${serverURL}/api/user/profile`, formData, {
+
+      const result = await axios.put(`${serverURL}/api/user/profile`, formData, {
         withCredentials: true,
       });
-      setSaving(false);
+
       dispatch(setUserData(result.data));
-      toast.success("Your profile was updated!");
+      setTimeout(()=>{
+        toast.success("Your profile was updated!",{autoClose : 2000});
+      },2000)
     } catch (error) {
       console.log(error);
-      setSaving(false);
       toast.error("Something went wrong");
+    } finally {
+        setTimeout(() => {
+      savingRef.current = false;
+      setSaving(false);
+    }, 2000); 
     }
   };
-
+  if(!userData) return <Navigate to = "/login"/>
   return (
     <div className="w-full min-h-[100dvh] bg-slate-200 flex items-center justify-center px-4">
       {/* Back Button */}
@@ -139,15 +153,18 @@ function Profile() {
           {/* Save Button */}
           <button
             type="submit"
-            className="mt-2 w-full py-3 bg-purple-600 text-white font-medium text-sm rounded-md hover:bg-purple-700 active:scale-95 transition duration-200"
             disabled={saving}
+            className={`mt-2 w-full py-3 text-white font-medium text-sm rounded-md transition duration-200 ${
+              saving
+                ? "bg-purple-400 cursor-not-allowed"
+                : "bg-purple-600 hover:bg-purple-700 active:scale-95"
+            }`}
           >
             {!saving ? (
               "Save profile"
             ) : (
               <>
-                Saving{" "}
-                <CgSpinner className="animate-spin inline font-bold text-2xl" />
+                Saving <CgSpinner className="animate-spin inline font-bold text-2xl" />
               </>
             )}
           </button>

@@ -1,38 +1,28 @@
 import React, { useEffect } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { RouterProvider, Outlet, createBrowserRouter } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { ToastContainer } from "react-toastify";
-
+import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
-
-import useSetCurrentUser from "./customHooks/getCurrentUser.js";
-import useSetOtherUsers from "./customHooks/getOtherUsers.js";
-
-import ShimmerSidebar from "./components/shimmer/shimmerSidebar.jsx";
-import MessageAreaShimmer from "./components/shimmer/shimmerMessageArea.jsx";
-
-import "react-toastify/dist/ReactToastify.css";
-
-import { serverURL } from "./main.jsx";
-
+import useSetCurrentUser from "./customHooks/getCurrentUser";
+import useSetOtherUsers from "./customHooks/getOtherUsers";
+import { serverURL } from "./main";
 import {
   setOnlineUsers,
-  setSelectedUser,
   setSocket,
-  updateSelectedUserLastSeen,
-  setTypingStatus,
-} from "./redux/userSlice.js";
+} from "./redux/userSlice";
+import ShimmerSidebar from "./components/shimmer/shimmerSidebar";
+import MessageAreaShimmer from "./components/shimmer/shimmerMessageArea";
 
-function App() {
+function RootLayout() {
   useSetCurrentUser();
   useSetOtherUsers();
 
-  const { userData, loading, socket, onlineUsers, typingStatusMap } =
-    useSelector((state) => state.user);
+  const { userData, loading } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -48,39 +38,41 @@ function App() {
       dispatch(setOnlineUsers(users));
     });
 
-    return () => socketio.close();
+    return () => socketio.disconnect();
   }, [userData, dispatch]);
 
   if (loading) {
-    return (
+    return window.location.pathname === "/" ? (
       <div className="w-full h-[100vh] flex">
         <ShimmerSidebar />
         <MessageAreaShimmer />
       </div>
+    ) : (
+      <div className="text-blue-900">Loading...</div>
     );
   }
 
+  return <Outlet />;
+}
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <RootLayout />,
+    children: [
+      { path: "/", element: <Home /> },
+      { path: "/profile", element: <Profile /> },
+    ],
+  },
+  { path: "/login", element: <Login /> },
+  { path: "/signup", element: <Signup /> },
+]);
+
+function App() {
   return (
     <>
-      <Routes>
-        <Route
-          path="/login"
-          element={!userData ? <Login /> : <Navigate to="/" />}
-        />
-        <Route
-          path="/signup"
-          element={!userData ? <Signup /> : <Navigate to="/profile" />}
-        />
-        <Route
-          path="/"
-          element={userData ? <Home /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/profile"
-          element={userData ? <Profile /> : <Navigate to="/login" />}
-        />
-      </Routes>
-      <ToastContainer position="bottom-center"/>
+      <RouterProvider router={router} />
+      <ToastContainer position="bottom-center" />
     </>
   );
 }

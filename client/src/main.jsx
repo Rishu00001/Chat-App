@@ -7,11 +7,10 @@ import { Provider } from "react-redux";
 import { store } from "./redux/store.js";
 export const serverURL = "https://app-backend-no5t.onrender.com";  //https://app-backend-no5t.onrender.com
 createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
     <Provider store={store}>
       <App />
     </Provider>
-  </BrowserRouter>
+  
 );
 
 // 

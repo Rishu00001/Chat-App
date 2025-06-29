@@ -6,11 +6,13 @@ import { useSelector } from 'react-redux'
 import { setOtherUsers } from '../redux/userSlice'
 import useSetOtherUsers from '../customHooks/getOtherUsers'
 import getMessages from '../customHooks/getMessages'
+import { Navigate } from 'react-router-dom'
 
 function Home() {
   let {userData} = useSelector((state)=>state.user)
   if(userData) useSetOtherUsers();
   getMessages();
+  if(!userData) return <Navigate to="/login"/>
   return (
     <div className=' w-full h-[100dvh] flex overflow-hidden'>
       <Sidebar/>

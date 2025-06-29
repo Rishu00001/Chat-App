@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { serverURL } from "../main";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { CgSpinner } from "react-icons/cg";
+import { useLocation } from "react-router-dom";
 import {
   setOtherUsers,
   setSelectedUser,
@@ -13,6 +14,8 @@ import {
 } from "../redux/userSlice";
 
 function Signup() {
+  const location = useLocation();
+  const {userData} = useSelector((state)=>state.user)
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -49,7 +52,9 @@ function Signup() {
       setSigninUp(false);
     }
   };
-
+     if (userData && location.pathname != "/signup") {
+    return <Navigate to="/"/>;
+  }
   return (
     <div className="w-screen h-screen bg-white flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-md flex flex-col gap-6 pb-8 overflow-hidden relative">
@@ -70,7 +75,7 @@ function Signup() {
 
         {/* Form */}
         <form
-          className="w-full flex flex-col gap-4 px-6 mt-4"
+          className="w-full flex flex-col gap-2 px-6 mt-4"
           onSubmit={handleSignup}
         >
           {/* Username Field */}
@@ -160,7 +165,7 @@ function Signup() {
         </div>
 
         {/* Footer */}
-        <p className="text-sm text-center text-gray-500 mt-4">
+        <p className="text-sm text-center text-gray-500 mt-2">
           Already have an account?{' '}
           <span
             className="text-purple-600 font-semibold cursor-pointer underline"
