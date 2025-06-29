@@ -10,6 +10,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: `https://wechat-22ij.onrender.com`, // Update if frontend URL changes
+    credentials : true,
   },
 });
 
