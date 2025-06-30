@@ -10,9 +10,9 @@ import { Navigate } from 'react-router-dom'
 
 function Home() {
   let {userData} = useSelector((state)=>state.user)
+  if(!userData) return <Navigate to="/login"/>
   if(userData) useSetOtherUsers();
   getMessages();
-  if(!userData) return <Navigate to="/login"/>
   return (
     <div className=' w-full h-[100dvh] flex overflow-hidden'>
       <Sidebar/>
